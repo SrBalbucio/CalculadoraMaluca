@@ -1,4 +1,5 @@
 #[warn(non_snake_case)]
+#[warn(all)]
 use std::io;
 
 enum OPERADOR {
@@ -10,6 +11,20 @@ enum OPERADOR {
 }
 
 impl OPERADOR {
+    pub fn getFrom(self, s: &str) -> OPERADOR {
+        if (s.contains("+")) {
+            return OPERADOR::soma;
+        } else if (s.contains("-")) {
+            return OPERADOR::substracao;
+        } else if (s.contains("*")) {
+            return OPERADOR::multiplicacao;
+        } else if (s.contains("/")) {
+            return OPERADOR::divisao;
+        } else {
+            return OPERADOR::none;
+        }
+    }
+
     pub fn getSignal(self) -> String {
         match self {
             OPERADOR::soma => String::from("+"),
@@ -19,7 +34,7 @@ impl OPERADOR {
             OPERADOR::none => todo!(),
         }
     }
-    pub fn clone(self)-> OPERADOR{
+    pub fn clone(self) -> OPERADOR {
         match self {
             OPERADOR::soma => OPERADOR::soma,
             OPERADOR::substracao => OPERADOR::substracao,
@@ -28,9 +43,9 @@ impl OPERADOR {
             OPERADOR::none => todo!(),
         }
     }
-  }
+}
 
-struct ContaSecundaria{
+struct ContaSecundaria {
     firstNumber: usize,
     operator: OPERADOR,
 }
@@ -42,7 +57,7 @@ struct Conta {
     total: usize,
 }
 
-impl ContaSecundaria{
+impl ContaSecundaria {
     fn new(firstNumber: usize, operator: OPERADOR) -> Self {
         ContaSecundaria {
             firstNumber,
@@ -51,8 +66,10 @@ impl ContaSecundaria{
     }
 
     fn clone(self) -> ContaSecundaria {
-        ContaSecundaria { firstNumber: self.firstNumber.clone()
-            , operator: self.operator.clone() }
+        ContaSecundaria {
+            firstNumber: self.firstNumber.clone(),
+            operator: self.operator.clone(),
+        }
     }
 }
 
@@ -66,34 +83,50 @@ impl Conta {
         }
     }
 
-    fn clone(self) -> Conta{
-        Conta { firstNumber: self.firstNumber.clone(), operator: self.operator.clone(), secondNumber: self.secondNumber.clone(), total: self.total.clone() }
+    fn clone(self) -> Conta {
+        Conta {
+            firstNumber: self.firstNumber.clone(),
+            operator: self.operator.clone(),
+            secondNumber: self.secondNumber.clone(),
+            total: self.total.clone(),
+        }
     }
     fn conta(&mut self) -> &mut usize {
-
         match self.operator {
             OPERADOR::soma => {
                 self.total = self.firstNumber + self.secondNumber;
-                println!("{}{}{}={}", self.firstNumber, "+", self.secondNumber, self.total);
+                println!(
+                    "{}{}{}={}",
+                    self.firstNumber, "+", self.secondNumber, self.total
+                );
             }
             OPERADOR::substracao => {
                 self.total = self.firstNumber - self.secondNumber;
-                println!("{}{}{}={}", self.firstNumber, "-", self.secondNumber, self.total);
+                println!(
+                    "{}{}{}={}",
+                    self.firstNumber, "-", self.secondNumber, self.total
+                );
             }
             OPERADOR::divisao => {
                 self.total = self.firstNumber / self.secondNumber;
-                println!("{}{}{}={}", self.firstNumber, "/", self.secondNumber, self.total);
+                println!(
+                    "{}{}{}={}",
+                    self.firstNumber, "/", self.secondNumber, self.total
+                );
             }
             OPERADOR::multiplicacao => {
                 self.total = self.firstNumber * self.secondNumber;
-                println!("{}{}{}={}", self.firstNumber, "*", self.secondNumber, self.total);
+                println!(
+                    "{}{}{}={}",
+                    self.firstNumber, "*", self.secondNumber, self.total
+                );
             }
             OPERADOR::none => (),
         }
         return &mut self.total;
     }
 
-    fn addToConta(&mut self, calc: ContaSecundaria)-> usize{
+    fn addToConta(&mut self, calc: ContaSecundaria) -> usize {
         let oldTotal = self.total.clone();
         match calc.operator {
             OPERADOR::soma => {
@@ -110,19 +143,23 @@ impl Conta {
             }
             OPERADOR::none => (),
         }
-        println!("{}{}{}={}", oldTotal, calc.operator.getSignal(), calc.firstNumber, self.total);
+        println!(
+            "{}{}{}={}",
+            oldTotal,
+            calc.operator.getSignal(),
+            calc.firstNumber,
+            self.total
+        );
         return self.total;
     }
 }
 
 fn main() {
     println!("Esta é calculadora maluca!");
-    let mut cat: u8 = 0;
-    let mut step: u8 = 0;
     while true {
         let mut calcs: Vec<ContaSecundaria> = Vec::new();
         let mut command: String = String::new();
-        println!("Deseja fazer uma conta em forma de questionario ou apenas enviar uma conta completa (está em beta)?");
+        println!("Deseja fazer uma conta em forma de questionario ou apenas enviar uma conta completa?");
         ler(&mut command);
         println!("{}", command.as_str());
         if (command.contains("questionario")) {
@@ -164,7 +201,7 @@ fn main() {
                         ooperator = OPERADOR::soma;
                     } else if (command.eq_ignore_ascii_case("substracao") || command.contains("-"))
                     {
-                        operator = OPERADOR::substracao;
+                        ooperator = OPERADOR::substracao;
                     } else if (command.eq_ignore_ascii_case("divisao") || command.contains("/")) {
                         ooperator = OPERADOR::divisao;
                     } else if (command.eq_ignore_ascii_case("multiplicacao")
@@ -173,10 +210,13 @@ fn main() {
                         ooperator = OPERADOR::multiplicacao;
                     }
 
-                    calcs.push(ContaSecundaria { firstNumber: nnumber.try_into().unwrap(), operator: ooperator });
+                    calcs.push(ContaSecundaria {
+                        firstNumber: nnumber.try_into().unwrap(),
+                        operator: ooperator,
+                    });
                     println!("Deseja adicionar mais operações a esta conta?");
                     ler(&mut command);
-                    if(command.contains("não")){
+                    if (command.contains("não")) {
                         addendo = false;
                     }
                 }
@@ -186,13 +226,47 @@ fn main() {
                 operator,
                 number2.try_into().unwrap(),
             );
+            println!();
             conta.conta();
 
             for calc in calcs {
                 conta.addToConta(calc);
             }
+            println!();
             println!("Resultado: {}", conta.total);
-        } else if (command.eq_ignore_ascii_case("completa")) {
+        } else if (command.contains("completa")) {
+            calcs = Vec::new();
+            println!("Envie a conta seguindo o seguinte padrão (x + y + z):");
+            ler(&mut command);
+            let mut splitted: Vec<&str> = command.split(" ").collect();
+            if (splitted.len() == 2) {
+                let mut conta: Conta = Conta::new(
+                    splitted[0].trim().parse::<usize>().unwrap(),
+                    OPERADOR::none.getFrom(splitted[1]),
+                    splitted[2].trim().parse::<usize>().unwrap(),
+                );
+                conta.conta();
+                println!("Resultado: {}", conta.total);
+            } else if(splitted.len() > 2){
+                let mut conta: Conta = Conta::new(
+                    splitted[0].trim().parse::<usize>().unwrap(),
+                    OPERADOR::none.getFrom(splitted[1]),
+                    splitted[2].trim().parse::<usize>().unwrap(),
+                );
+                println!();
+                conta.conta();
+                let mut toIgnore = 0;
+                for i in 3..splitted.len() {
+                    if(i != toIgnore){
+                        calcs.push(ContaSecundaria { firstNumber: splitted[i+1].trim().parse::<usize>().unwrap(), operator: OPERADOR::none.getFrom(splitted[i]) });
+                        toIgnore = i+1;
+                    }
+                }
+                for calc in calcs {
+                    conta.addToConta(calc);
+                }
+                println!("Resultado: {}", conta.total);
+            }
         } else {
             println!("Essa opção infelizmente não existe, use: questionario ou completa.");
         }
